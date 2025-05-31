@@ -102,33 +102,33 @@ Ready to help you! 🚀
 @bot.message_handler(commands=['topics'])
 def show_topics(message):
     topics_text = """
-📚 <b>Hey! Here are my expertise areas:</b> 👋
+📚 Hey! Here are my expertise areas: 👋
 
-🔸 <b>Statistics & Probability</b>
+🔸 Statistics & Probability
    • Hypothesis Testing, ANOVA, Distributions
    • Confidence Intervals, P-values
    • Bayesian & Frequentist Statistics
 
-🔸 <b>Machine Learning</b>
+🔸 Machine Learning
    • Regression, Classification, Clustering
    • Model Evaluation, Cross-validation
    • Overfitting/Underfitting Solutions
 
-🔸 <b>Deep Learning & AI</b>
+🔸 Deep Learning & AI
    • Neural Networks, CNNs, RNNs
    • TensorFlow, PyTorch, Keras
    • NLP, Computer Vision
 
-🔸 <b>Data Science</b>
+🔸 Data Science
    • Data Preprocessing & EDA
    • Feature Engineering
    • Data Visualization
 
-🔸 <b>Mathematics</b>
+🔸 Mathematics
    • Linear Algebra, Calculus
    • Optimization, Matrix Operations
 
-🔸 <b>Programming</b>
+🔸 Programming
    • Python (Pandas, NumPy, Scikit-learn)
    • R Programming, SQL
 
@@ -200,14 +200,13 @@ Use /topics to see all supported areas.
         response = model.generate_content(full_prompt)
         
         if response and response.text:
-            # Convert markdown to HTML
-            html_response = convert_markdown_to_html(response.text)
-            
-            # Check if response is too long (keep under 200 words approximately)
-            if len(html_response) > 1500:  # Approximate 200 words
-                html_response = html_response[:1500] + "... \n\n<i>Ask for more details if needed!</i> 🤖"
-            
-            bot.reply_to(message, html_response)
+            markdown_text = response.text
+
+            if len(markdown_text) > 1500:
+                markdown_text = markdown_text[:1500] + "\n\n*Ask for more details if needed!* 🤖"
+
+            bot.reply_to(message, markdown_text, parse_mode="MarkdownV2")
+
         else:
             bot.reply_to(message, "❌ Hey! I couldn't generate a response. Please try rephrasing your question! 😊")
             
@@ -225,7 +224,7 @@ I'm here to help with your data science queries! 🤖
 @bot.message_handler(content_types=['photo', 'document', 'audio', 'video', 'voice', 'sticker'])
 def handle_media(message):
     media_response = """
-📎 <b>Hi there!</b> 👋
+📎 Hi there! 👋
 
 I can only process text questions about:
 📊 Data Science | ML | AI | Stats | Math
@@ -235,7 +234,7 @@ I can only process text questions about:
 • Ask specific analysis questions
 • Request code examples
 
-<b>For math images:</b>
+For math images:
 • Type out the problem in text
 
 Ready to help with your questions! 😊🤖
