@@ -18,7 +18,8 @@ if not TELEGRAM_BOT_TOKEN or not GEMINI_API_KEY:
 
 # ===== INITIALIZE COMPONENTS =====
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
-model=genai.configure(api_key=GEMINI_API_KEY)
+genai.configure(api_key=GEMINI_API_KEY)
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 # Define allowed topics for StatFusionAI
 ALLOWED_TOPICS = [
