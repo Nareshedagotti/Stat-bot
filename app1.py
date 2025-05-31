@@ -17,7 +17,7 @@ if not TELEGRAM_BOT_TOKEN or not GEMINI_API_KEY:
     exit(1)
 
 # ===== INITIALIZE COMPONENTS =====
-bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
+bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN, parse_mode='Markdown')
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-1.5-flash")
 
@@ -58,7 +58,7 @@ def generate_system_prompt():
 CRITICAL GUIDELINES:
 1. Keep responses under 200 words maximum
 2. Be concise and direct
-3. Use markdown formatting (bold, italics, code blocks)
+3. Use markdown formatting (*bold*, _italics_, `code blocks`)
 4. Focus on key points only
 5. Include brief code examples if needed
 6. Start with a friendly greeting
@@ -71,14 +71,14 @@ Your expertise includes:
 - Data Science & Programming
 - Mathematics
 
-Format: Use **bold**, *italics*, and `code` formatting appropriately."""
+Format: Use *bold*, _italics_, and `code` formatting appropriately for Telegram markdown."""
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     welcome_text = """
-🤖 <b>Hello! Welcome to StatFusionAI Bot!</b> 👋📊
+🤖 *Hello! Welcome to StatFusionAI Bot!* 👋📊
 
-<b>I'm your friendly assistant for:</b>
+*I'm your friendly assistant for:*
 📈 Statistics & Probability
 🤖 Machine Learning & AI
 🧠 Deep Learning
@@ -86,14 +86,14 @@ def send_welcome(message):
 🔢 Mathematics
 💻 Programming (Python/R)
 
-<b>Quick Commands:</b>
+*Quick Commands:*
 /start - This welcome message
 /topics - See all supported topics
 
-<b>Just ask me anything about:</b>
+*Just ask me anything about:*
 Data science, ML algorithms, statistics, math problems, Python/R code, or AI concepts!
 
-<i>Note: I focus only on data science related topics! 😊</i>
+_Note: I focus only on data science related topics!_ 😊
 
 Ready to help you! 🚀
 """
@@ -104,31 +104,31 @@ def show_topics(message):
     topics_text = """
 📚 Hey! Here are my expertise areas: 👋
 
-🔸 Statistics & Probability
+🔸 *Statistics & Probability*
    • Hypothesis Testing, ANOVA, Distributions
    • Confidence Intervals, P-values
    • Bayesian & Frequentist Statistics
 
-🔸 Machine Learning
+🔸 *Machine Learning*
    • Regression, Classification, Clustering
    • Model Evaluation, Cross-validation
    • Overfitting/Underfitting Solutions
 
-🔸 Deep Learning & AI
+🔸 *Deep Learning & AI*
    • Neural Networks, CNNs, RNNs
    • TensorFlow, PyTorch, Keras
    • NLP, Computer Vision
 
-🔸 Data Science
+🔸 *Data Science*
    • Data Preprocessing & EDA
    • Feature Engineering
    • Data Visualization
 
-🔸 Mathematics
+🔸 *Mathematics*
    • Linear Algebra, Calculus
    • Optimization, Matrix Operations
 
-🔸 Programming
+🔸 *Programming*
    • Python (Pandas, NumPy, Scikit-learn)
    • R Programming, SQL
 
@@ -140,18 +140,6 @@ def check_gratitude(text):
     """Check if user is saying thank you"""
     gratitude_words = ['thank', 'thanks', 'thx', 'appreciate', 'grateful', 'awesome', 'great', 'perfect', 'excellent']
     return any(word in text.lower() for word in gratitude_words)
-
-def convert_markdown_to_html(text):
-    """Convert markdown formatting to HTML for Telegram"""
-    # Bold: **text** -> <b>text</b>
-    text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
-    # Italic: *text* -> <i>text</i>
-    text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', text)
-    # Code: `text` -> <code>text</code>
-    text = re.sub(r'`(.*?)`', r'<code>\1</code>', text)
-    # Code blocks: ```text``` -> <pre>text</pre>
-    text = re.sub(r'```(.*?)```', r'<pre>\1</pre>', text, flags=re.DOTALL)
-    return text
 
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
@@ -174,7 +162,7 @@ def handle_message(message):
         # Check if question is relevant to StatFusionAI
         if not is_relevant_question(user_question):
             off_topic_response = """
-🚫 <b>Hi there!</b> I'm StatFusionAI, specialized only in:
+🚫 *Hi there!* I'm StatFusionAI, specialized only in:
 
 📊 Data Science & Statistics
 🤖 Machine Learning & AI  
@@ -200,20 +188,21 @@ Use /topics to see all supported areas.
         response = model.generate_content(full_prompt)
         
         if response and response.text:
-            markdown_text = response.text
-
-            if len(markdown_text) > 1500:
-                markdown_text = markdown_text[:1500] + "\n\n*Ask for more details if needed!* 🤖"
-
-            bot.reply_to(message, markdown_text, parse_mode="MarkdownV2")
-
+            # Send markdown response directly
+            markdown_response = response.text
+            
+            # Check if response is too long (keep under 200 words approximately)
+            if len(markdown_response) > 1500:  # Approximate 200 words
+                markdown_response = markdown_response[:1500] + "... \n\n_Ask for more details if needed!_ 🤖"
+            
+            bot.reply_to(message, markdown_response)
         else:
             bot.reply_to(message, "❌ Hey! I couldn't generate a response. Please try rephrasing your question! 😊")
             
     except Exception as e:
         logger.error(f"Error processing message: {e}")
         error_response = """
-❌ <b>Oops! Something went wrong!</b> 😅
+❌ *Oops! Something went wrong!* 😅
 
 Please try again with a simpler question.
 I'm here to help with your data science queries! 🤖
@@ -229,7 +218,7 @@ def handle_media(message):
 I can only process text questions about:
 📊 Data Science | ML | AI | Stats | Math
 
-<b>For data files:</b>
+*For data files:*
 • Describe your dataset in text
 • Ask specific analysis questions
 • Request code examples
