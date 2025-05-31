@@ -2,17 +2,23 @@ import telebot
 import google.generativeai as genai
 import re
 import logging
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Bot configuration
-bot = telebot.TeleBot("7928366370:AAGsDNu5nwaHb1wJhv8eOqCboTOE9-xE17g", parse_mode='HTML')
+# Get tokens from environment variables (safer for deployment)
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
-# Configure Gemini API
-genai.configure(api_key='AIzaSyDW82qFu0rK1niSYJHULmz1guiFf6mIfPk')
-model = genai.GenerativeModel('gemini-1.5-flash')
+if not TELEGRAM_BOT_TOKEN or not GEMINI_API_KEY:
+    print("❌ Please set TELEGRAM_BOT_TOKEN and GEMINI_API_KEY environment variables")
+    exit(1)
+
+# ===== INITIALIZE COMPONENTS =====
+bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
+model=genai.configure(api_key=GEMINI_API_KEY)
 
 # Define allowed topics for StatFusionAI
 ALLOWED_TOPICS = [

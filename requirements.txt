@@ -1,2 +1,4 @@
 pyTelegramBotAPI
 google-generativeai
+numpy
+regex
